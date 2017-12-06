@@ -41,7 +41,7 @@ class BullNamedQueue implements NamedQueue<Bull.Job> {
  */
 export function MultiConsumerBull(queue: Bull.Queue,
                                   redis: () => redis.RedisClient,
-                                  liveSetKey: (topic: string) => string = (topic) => `bullConsumerGroups/${topic}`): EventBus<Bull.Job> {
+                                  liveSetKey: (topic: string) => string = (topic) => `QueueMultiConsumerGroups/${topic}`): EventBus<Bull.Job> {
   return new EventBusImpl((topic: string) => {
     const kQueue = new BullNamedQueue(queue)
     const src: Queue<Bull.Job> = new NamedQueueWrap(topic, kQueue)
