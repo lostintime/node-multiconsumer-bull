@@ -22,6 +22,8 @@ import {
   NamedQueue, NamedQueueWrap, ProcessCallback, Queue
 } from "multiconsumer-queue"
 
+export * from "multiconsumer-queue"
+
 class BullNamedQueue implements NamedQueue<Bull.Job> {
 
   constructor(private readonly _out: Bull.Queue) {
