@@ -19,7 +19,7 @@ import * as redis from "redis"
 import { createStringsLiveSet } from "redis-liveset"
 import {
   DynamicallyNamedQueue, EventBus, EventBusImpl, MultiConsumerQueueImpl,
-  NamedQueue, NamedQueueWrap, ProcessCallback, Queue
+  NamedQueue, NamedQueueWrap, ProcessCallback, Queue, QueueTopic, ConsumerGroupId
 } from "multiconsumer-queue"
 
 export * from "multiconsumer-queue"
@@ -43,11 +43,11 @@ class BullNamedQueue implements NamedQueue<Bull.Job> {
  */
 export function MultiConsumerBull(queue: Bull.Queue,
                                   redis: () => redis.RedisClient,
-                                  liveSetKey: (topic: string) => string = (topic) => `QueueMultiConsumerGroups/${topic}`): EventBus<Bull.Job> {
-  return new EventBusImpl((topic: string) => {
+                                  liveSetKey: (topic: QueueTopic) => QueueTopic = (topic) => QueueTopic(`QueueMultiConsumerGroups/${topic}`)): EventBus<Bull.Job> {
+  return new EventBusImpl((topic: QueueTopic) => {
     const kQueue = new BullNamedQueue(queue)
     const src: Queue<Bull.Job> = new NamedQueueWrap(topic, kQueue)
-    const dest: NamedQueue<Bull.Job> = new DynamicallyNamedQueue((groupId) => `${topic}/${groupId}`, kQueue)
+    const dest: NamedQueue<Bull.Job> = new DynamicallyNamedQueue((groupId) => QueueTopic(`${topic}/${groupId}`), kQueue)
     const groups = createStringsLiveSet(liveSetKey(topic), redis(), redis())
 
     return new MultiConsumerQueueImpl(src, dest, groups, (job) => job.data)
